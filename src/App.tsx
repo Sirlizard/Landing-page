@@ -1,20 +1,36 @@
 import React, { useState } from 'react';
+import { addToWaitlist } from './lib/supabase';
 import { Mail, Users, Clock, Umbrella, ArrowRight, CheckCircle, Smartphone, Calendar, MessageCircle } from 'lucide-react';
 
 function App() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
-      // In a real app, this would send to your backend/email service
-      console.log('Email submitted:', email);
-      setIsSubmitted(true);
-      setTimeout(() => {
-        setIsSubmitted(false);
+      setIsLoading(true);
+      setMessage('');
+      
+      const result = await addToWaitlist(email);
+      
+      if (result.success) {
+        setIsSubmitted(true);
+        setMessage(result.message);
         setEmail('');
-      }, 3000);
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setMessage('');
+        }, 3000);
+      } else {
+        setMessage(result.message);
+      }
+      
+      setIsLoading(false);
     }
   };
 
@@ -55,9 +71,15 @@ function App() {
               </div>
               <button
                 type="submit"
-                className="px-8 py-4 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 flex items-center gap-2"
+                disabled={isLoading}
+                className="px-8 py-4 bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all transform hover:scale-105 disabled:hover:scale-100 flex items-center gap-2"
               >
-                {isSubmitted ? (
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Joining...
+                  </>
+                ) : isSubmitted ? (
                   <>
                     <CheckCircle className="w-5 h-5" />
                     Joined!
@@ -70,7 +92,14 @@ function App() {
                 )}
               </button>
             </div>
-            <p className="text-sm text-blue-600 mt-3">No spam, ever. Just one notification when we launch.</p>
+            <div className="mt-3">
+              {message && (
+                <p className={`text-sm mb-2 ${message.includes('Failed') ? 'text-red-600' : 'text-green-600'}`}>
+                  {message}
+                </p>
+              )}
+              <p className="text-sm text-blue-600">No spam, ever. Just one notification when we launch.</p>
+            </div>
           </form>
 
           <div className="flex items-center justify-center gap-6 text-sm text-blue-600">
@@ -317,9 +346,15 @@ function App() {
               </div>
               <button
                 type="submit"
-                className="px-8 py-4 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 flex items-center gap-2"
+                disabled={isLoading}
+                className="px-8 py-4 bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all transform hover:scale-105 disabled:hover:scale-100 flex items-center gap-2"
               >
-                {isSubmitted ? (
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Joining...
+                  </>
+                ) : isSubmitted ? (
                   <>
                     <CheckCircle className="w-5 h-5" />
                     Joined!
@@ -332,7 +367,14 @@ function App() {
                 )}
               </button>
             </div>
-            <p className="text-sm text-pink-200 mt-3">Join 15,000+ people already on the waitlist</p>
+            <div className="mt-3">
+              {message && (
+                <p className={`text-sm mb-2 ${message.includes('Failed') ? 'text-red-300' : 'text-green-300'}`}>
+                  {message}
+                </p>
+              )}
+              <p className="text-sm text-pink-200">Join 15,000+ people already on the waitlist</p>
+            </div>
           </form>
 
           <div className="flex items-center justify-center gap-8 text-sm text-pink-200">
