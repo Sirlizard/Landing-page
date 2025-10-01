@@ -1,15 +1,35 @@
 import React, { useState } from 'react';
-import { addToWaitlist } from './lib/supabase';
+import { addToWaitlist, getCurrentUser, signOut } from './lib/supabase';
 import { Mail, Users, Clock, Umbrella, ArrowRight, CheckCircle, Smartphone, Calendar, MessageCircle } from 'lucide-react';
+import AuthModal from './components/AuthModal';
 
 function App() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  // Check for authenticated user on component mount
+  React.useEffect(() => {
+    checkUser();
+  }, []);
+
+  const checkUser = async () => {
+    const { user } = await getCurrentUser();
+    setUser(user);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if user is authenticated
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    
     if (email) {
       setIsLoading(true);
       setMessage('');
@@ -34,10 +54,34 @@ function App() {
     }
   };
 
+  const handleAuthSuccess = () => {
+    checkUser();
+  };
+
+  const handleSignOut = async () => {
+    const result = await signOut();
+    if (result.success) {
+      setUser(null);
+      setMessage('');
+    }
+  };
   return (
     <div className="min-h-screen bg-cream">
       {/* Hero Section */}
       <section className="relative px-6 py-20 bg-gradient-to-br from-pink-100 via-cream to-blue-50">
+        {/* User Status Bar */}
+        {user && (
+          <div className="absolute top-4 right-4 flex items-center gap-4 bg-white rounded-full px-4 py-2 shadow-lg">
+            <span className="text-sm text-blue-700">Welcome, {user.email}</span>
+            <button
+              onClick={handleSignOut}
+              className="text-sm text-pink-500 hover:text-pink-600 font-medium transition-colors"
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
+
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-pink-200 text-blue-800 rounded-full text-sm font-medium mb-6">
@@ -86,7 +130,7 @@ function App() {
                   </>
                 ) : (
                   <>
-                    Join Waitlist
+                    {user ? 'Join Waitlist' : 'Sign In to Join'}
                     <ArrowRight className="w-5 h-5" />
                   </>
                 )}
@@ -98,7 +142,9 @@ function App() {
                   {message}
                 </p>
               )}
-              <p className="text-sm text-blue-600">No spam, ever. Just one notification when we launch.</p>
+              <p className="text-sm text-blue-600">
+                {user ? 'No spam, ever. Just one notification when we launch.' : 'Create an account to join the waitlist'}
+              </p>
             </div>
           </form>
 
@@ -361,7 +407,7 @@ function App() {
                   </>
                 ) : (
                   <>
-                    Get Early Access
+                    {user ? 'Get Early Access' : 'Sign In to Join'}
                     <ArrowRight className="w-5 h-5" />
                   </>
                 )}
@@ -373,7 +419,9 @@ function App() {
                   {message}
                 </p>
               )}
-              <p className="text-sm text-pink-200">Join 15,000+ people already on the waitlist</p>
+              <p className="text-sm text-pink-200">
+                {user ? 'Join 15,000+ people already on the waitlist' : 'Create an account to join the waitlist'}
+              </p>
             </div>
           </form>
 
@@ -404,6 +452,13 @@ function App() {
           <p className="text-pink-200">Your personal relationship manager. Coming soon.</p>
         </div>
       </footer>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }
