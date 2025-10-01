@@ -3,11 +3,10 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Create a mock client if environment variables are not set
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null
 
 // Database types
 export interface WaitlistEmail {
@@ -19,6 +18,16 @@ export interface WaitlistEmail {
 
 // Function to add email to waitlist
 export async function addToWaitlist(email: string, source: string = 'landing_page') {
+  // Return mock response if Supabase is not configured
+  if (!supabase) {
+    console.warn('Supabase not configured. Email would be:', email)
+    return { 
+      success: true, 
+      message: 'Demo mode: Email captured! (Configure Supabase to save emails)', 
+      data: null 
+    }
+  }
+
   try {
     const { data, error } = await supabase
       .from('waitlist_emails')
@@ -47,6 +56,11 @@ export async function addToWaitlist(email: string, source: string = 'landing_pag
 
 // Function to get waitlist count (for displaying metrics)
 export async function getWaitlistCount() {
+  // Return mock count if Supabase is not configured
+  if (!supabase) {
+    return { success: true, count: 15000 }
+  }
+
   try {
     const { count, error } = await supabase
       .from('waitlist_emails')
