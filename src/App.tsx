@@ -65,13 +65,13 @@ function App() {
       setMessage('');
     }
   };
+
   return (
-    <div className="min-h-screen bg-cream">
-      {/* Hero Section */}
-      <section className="relative px-6 py-20 bg-gradient-to-br from-pink-100 via-cream to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-cream to-blue-50 flex items-center justify-center px-6">
+      <div className="max-w-2xl mx-auto text-center">
         {/* User Status Bar */}
         {user && (
-          <div className="absolute top-4 right-4 flex items-center gap-4 bg-white rounded-full px-4 py-2 shadow-lg">
+          <div className="fixed top-4 right-4 flex items-center gap-4 bg-white rounded-full px-4 py-2 shadow-lg">
             <span className="text-sm text-blue-700">Welcome, {user.email}</span>
             <button
               onClick={handleSignOut}
@@ -82,104 +82,92 @@ function App() {
           </div>
         )}
 
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-pink-200 text-blue-800 rounded-full text-sm font-medium mb-6">
-              <Umbrella className="w-4 h-4" />
-              Personal Relationship Manager
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-pink-200 text-blue-800 rounded-full text-sm font-medium mb-6">
+            <Umbrella className="w-4 h-4" />
+            Personal Relationship Manager
+          </div>
+          
+          <h1 className="text-5xl lg:text-6xl font-bold text-blue-900 mb-6 leading-tight font-['Leto']">
+            Don't let your best<br />
+            <span className="text-pink-500">friendships fade away</span>
+          </h1>
+          
+          <p className="text-xl lg:text-2xl text-blue-800 mb-12 leading-relaxed font-light">
+            Net-umbrella uses smart, gentle nudges to help you stay close to the people who matter most. 
+            Be the first to know when we launch.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="max-w-md mx-auto mb-8">
+          <div className="flex gap-3">
+            <div className="flex-1 relative">
+              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-400 w-5 h-5" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full pl-12 pr-4 py-4 border border-pink-300 rounded-lg text-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent transition-all bg-white"
+                required
+              />
             </div>
-            
-            <h1 className="text-5xl lg:text-6xl font-bold text-blue-900 mb-6 leading-tight font-['Leto']">
-              Don't let your best<br />
-              <span className="text-pink-500">friendships fade away</span>
-            </h1>
-            
-            <p className="text-xl lg:text-2xl text-blue-800 mb-12 leading-relaxed max-w-3xl mx-auto font-light">
-              Net-umbrella uses smart, gentle nudges to help you stay close to the people who matter most. 
-              Be the first to know when we launch.
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-8 py-4 bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all transform hover:scale-105 disabled:hover:scale-100 flex items-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Joining...
+                </>
+              ) : isSubmitted ? (
+                <>
+                  <CheckCircle className="w-5 h-5" />
+                  Joined!
+                </>
+              ) : (
+                <>
+                  {user ? 'Join Waitlist' : 'Sign In to Join'}
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </button>
+          </div>
+          <div className="mt-3">
+            {message && (
+              <p className={`text-sm mb-2 ${message.includes('Failed') ? 'text-red-600' : 'text-green-600'}`}>
+                {message}
+              </p>
+            )}
+            <p className="text-sm text-blue-600">
+              {user ? 'No spam, ever. Just one notification when we launch.' : 'Create an account to join the waitlist'}
             </p>
           </div>
+        </form>
 
-          <form onSubmit={handleSubmit} className="max-w-md mx-auto mb-8">
-            <div className="flex gap-3">
-              <div className="flex-1 relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-400 w-5 h-5" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="w-full pl-12 pr-4 py-4 border border-pink-300 rounded-lg text-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent transition-all bg-white"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-8 py-4 bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all transform hover:scale-105 disabled:hover:scale-100 flex items-center gap-2"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Joining...
-                  </>
-                ) : isSubmitted ? (
-                  <>
-                    <CheckCircle className="w-5 h-5" />
-                    Joined!
-                  </>
-                ) : (
-                  <>
-                    {user ? 'Join Waitlist' : 'Sign In to Join'}
-                    <ArrowRight className="w-5 h-5" />
-                  </>
-                )}
-              </button>
-            </div>
-            <div className="mt-3">
-              {message && (
-                <p className={`text-sm mb-2 ${message.includes('Failed') ? 'text-red-600' : 'text-green-600'}`}>
-                  {message}
-                </p>
-              )}
-              <p className="text-sm text-blue-600">
-                {user ? 'No spam, ever. Just one notification when we launch.' : 'Create an account to join the waitlist'}
-              </p>
-            </div>
-          </form>
-
-          <div className="flex items-center justify-center gap-6 text-sm text-blue-600">
-            <span className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-teal-500" />
-              Free to join
-            </span>
-            <span className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-teal-500" />
-              Early access benefits
-            </span>
-            <span className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-teal-500" />
-              Beta testing opportunity
-            </span>
+        {/* Footer */}
+        <div className="mt-12">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Umbrella className="w-6 h-6 text-pink-500" />
+            <span className="text-xl font-bold text-blue-900 font-['Leto']">Net-umbrella</span>
           </div>
+          <p className="text-blue-700">Your personal relationship manager. Coming soon.</p>
+        </div>
+      </div>
 
-          {/* Metrics Section */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-pink-500 mb-2">15K+</div>
-              <div className="text-sm text-blue-600">People on waitlist</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600 mb-2">2.3M</div>
-              <div className="text-sm text-blue-600">Friendships saved</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-teal-500 mb-2">89%</div>
-              <div className="text-sm text-blue-600">Feel more connected</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-red-600 mb-2">4.9★</div>
-              <div className="text-sm text-blue-600">Beta user rating</div>
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+      />
+    </div>
+  );
+}
+
+export default App;
             </div>
           </div>
         </div>
