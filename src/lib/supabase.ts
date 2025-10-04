@@ -48,7 +48,7 @@ export async function addToWaitlist(email: string, source: string = 'landing_pag
     if (error) {
       // Handle duplicate email error gracefully
       if (error.code === '23505') {
-        return { success: true, message: 'Email already registered!', data: null }
+        return { success: false, message: 'Email already registered!', data: null }
       }
       throw error
     }
