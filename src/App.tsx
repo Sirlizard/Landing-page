@@ -34,7 +34,7 @@ function App() {
       setIsLoading(true);
       setMessage('');
       
-      const result = await addToWaitlist(email);
+      const result = await addToWaitlist(email, 'landing_page', 'A');
       
       if (result.success) {
         setIsSubmitted(true);

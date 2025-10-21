@@ -13,11 +13,12 @@ export interface WaitlistEmail {
   id: string
   email: string
   source: string
+  tracking_id: string
   created_at: string
 }
 
 // Function to add email to waitlist
-export async function addToWaitlist(email: string, source: string = 'landing_page') {
+export async function addToWaitlist(email: string, source: string = 'landing_page', trackingId: string = 'A') {
   // Return mock response if Supabase is not configured
   if (!supabase) {
     console.warn('Supabase not configured. Email would be:', email)
@@ -41,7 +42,11 @@ export async function addToWaitlist(email: string, source: string = 'landing_pag
   try {
     const { data, error } = await supabase
       .from('waitlist_emails')
-      .insert([{ email, source }])
+      .insert([{ 
+        email, 
+        source, 
+        tracking_id: trackingId 
+      }])
       .select()
       .single()
 
@@ -52,6 +57,9 @@ export async function addToWaitlist(email: string, source: string = 'landing_pag
       }
       throw error
     }
+
+    // Log tracking information
+    console.log(`Waitlist signup tracked with ID: ${trackingId}`, { email, source, tracking_id: trackingId })
 
     return { success: true, message: 'Successfully joined waitlist!', data }
   } catch (error) {
@@ -65,7 +73,7 @@ export async function addToWaitlist(email: string, source: string = 'landing_pag
 }
 
 // Authentication functions
-export async function signUp(email: string, password: string) {
+export async function signUp(email: string, password: string, trackingId: string = 'A') {
   if (!supabase) {
     return { success: false, message: 'Supabase not configured' }
   }
@@ -78,6 +86,9 @@ export async function signUp(email: string, password: string) {
 
     if (error) throw error
 
+    // Track the signup with the provided tracking ID
+    console.log(`User signup tracked with ID: ${trackingId}`, { email, trackingId })
+    
     return { success: true, message: 'Account created successfully!', data }
   } catch (error: any) {
     console.error('Error signing up:', error)
@@ -163,5 +174,49 @@ export async function getWaitlistCount() {
   } catch (error) {
     console.error('Error getting waitlist count:', error)
     return { success: false, count: 0 }
+  }
+}
+
+// Function to get waitlist count by tracking ID
+export async function getWaitlistCountByTracking(trackingId: string) {
+  // Return mock count if Supabase is not configured
+  if (!supabase) {
+    return { success: true, count: 15000 }
+  }
+
+  try {
+    const { count, error } = await supabase
+      .from('waitlist_emails')
+      .select('*', { count: 'exact', head: true })
+      .eq('tracking_id', trackingId)
+
+    if (error) throw error
+
+    return { success: true, count: count || 0 }
+  } catch (error) {
+    console.error('Error getting waitlist count by tracking:', error)
+    return { success: false, count: 0 }
+  }
+}
+
+// Function to get all waitlist entries by tracking ID
+export async function getWaitlistByTracking(trackingId: string) {
+  if (!supabase) {
+    return { success: false, data: null, message: 'Supabase not configured' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('waitlist_emails')
+      .select('*')
+      .eq('tracking_id', trackingId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, data, message: 'Successfully retrieved waitlist data' }
+  } catch (error) {
+    console.error('Error getting waitlist by tracking:', error)
+    return { success: false, data: null, message: 'Failed to retrieve waitlist data' }
   }
 }

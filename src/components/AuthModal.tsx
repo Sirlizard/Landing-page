@@ -21,7 +21,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setMessage('');
 
     const result = isSignUp 
-      ? await signUp(email, password)
+      ? await signUp(email, password, 'A')
       : await signIn(email, password);
 
     if (result.success) {
