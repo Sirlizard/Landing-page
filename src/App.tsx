@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { addToWaitlist, getCurrentUser, signOut } from './lib/supabase';
 import { initializeUTMTracking, getUTMForSubmission } from './lib/utm-tracking';
+import { initializeGoogleUTMTracking, getGoogleUTMForSubmission } from './lib/google-utm-tracking';
 import { Mail, Umbrella, ArrowRight, CheckCircle, BarChart3 } from 'lucide-react';
 import AuthModal from './components/AuthModal';
 import UTMAnalytics from './components/UTMAnalytics';
@@ -18,6 +19,7 @@ function App() {
   React.useEffect(() => {
     checkUser();
     initializeUTMTracking();
+    initializeGoogleUTMTracking();
   }, []);
 
   const checkUser = async () => {
@@ -38,8 +40,25 @@ function App() {
       setIsLoading(true);
       setMessage('');
       
-      // Get UTM parameters for tracking
-      const utmParams = getUTMForSubmission();
+      // Get UTM parameters for tracking (prioritize Google UTM if available)
+      const googleUTM = getGoogleUTMForSubmission();
+      const regularUTM = getUTMForSubmission();
+      
+      // Use Google UTM if available, otherwise fall back to regular UTM
+      const utmParams = googleUTM ? {
+        utm_source: googleUTM.utm_source,
+        utm_medium: googleUTM.utm_medium,
+        utm_campaign: googleUTM.utm_campaign,
+        utm_term: googleUTM.utm_term,
+        utm_content: googleUTM.utm_content,
+        referrer: googleUTM.referrer,
+        landing_page: googleUTM.landing_page,
+        gclid: googleUTM.gclid,
+        google_campaign_type: googleUTM.google_campaign_type,
+        google_ad_group: googleUTM.google_ad_group,
+        google_keyword: googleUTM.google_keyword,
+        google_placement: googleUTM.google_placement
+      } : regularUTM;
       
       const result = await addToWaitlist(email, 'landing_page', 'A', utmParams);
       

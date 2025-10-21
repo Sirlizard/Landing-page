@@ -21,6 +21,13 @@ export interface WaitlistEmail {
   utm_content?: string
   referrer?: string
   landing_page?: string
+  // Google-specific tracking fields
+  gclid?: string
+  google_campaign_type?: string
+  google_ad_group?: string
+  google_keyword?: string
+  google_placement?: string
+  google_creative?: string
   created_at: string
 }
 
@@ -363,5 +370,149 @@ export async function getCampaignPerformance() {
   } catch (error) {
     console.error('Error getting campaign performance:', error)
     return { success: false, data: null, message: 'Failed to retrieve campaign performance' }
+  }
+}
+
+// Google-Specific Analytics Functions
+
+// Get signups by Google campaign type
+export async function getSignupsByGoogleCampaignType(campaignType: string) {
+  if (!supabase) {
+    return { success: false, data: null, message: 'Supabase not configured' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('waitlist_emails')
+      .select('*')
+      .eq('google_campaign_type', campaignType)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, data, message: `Successfully retrieved signups for Google campaign type: ${campaignType}` }
+  } catch (error) {
+    console.error('Error getting signups by Google campaign type:', error)
+    return { success: false, data: null, message: 'Failed to retrieve Google campaign type data' }
+  }
+}
+
+// Get signups by Google ad group
+export async function getSignupsByGoogleAdGroup(adGroup: string) {
+  if (!supabase) {
+    return { success: false, data: null, message: 'Supabase not configured' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('waitlist_emails')
+      .select('*')
+      .eq('google_ad_group', adGroup)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, data, message: `Successfully retrieved signups for Google ad group: ${adGroup}` }
+  } catch (error) {
+    console.error('Error getting signups by Google ad group:', error)
+    return { success: false, data: null, message: 'Failed to retrieve Google ad group data' }
+  }
+}
+
+// Get signups by Google keyword
+export async function getSignupsByGoogleKeyword(keyword: string) {
+  if (!supabase) {
+    return { success: false, data: null, message: 'Supabase not configured' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('waitlist_emails')
+      .select('*')
+      .eq('google_keyword', keyword)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, data, message: `Successfully retrieved signups for Google keyword: ${keyword}` }
+  } catch (error) {
+    console.error('Error getting signups by Google keyword:', error)
+    return { success: false, data: null, message: 'Failed to retrieve Google keyword data' }
+  }
+}
+
+// Get Google Ads performance summary
+export async function getGoogleAdsPerformance() {
+  if (!supabase) {
+    return { success: false, data: null, message: 'Supabase not configured' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('waitlist_emails')
+      .select('google_campaign_type, google_ad_group, google_keyword, utm_campaign, created_at')
+      .not('google_campaign_type', 'is', null)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    // Group by Google campaign for summary
+    const googleSummary = data?.reduce((acc: any, item: any) => {
+      const key = `${item.google_campaign_type}_${item.google_ad_group}_${item.utm_campaign}`;
+      if (!acc[key]) {
+        acc[key] = {
+          google_campaign_type: item.google_campaign_type,
+          google_ad_group: item.google_ad_group,
+          utm_campaign: item.utm_campaign,
+          count: 0,
+          latest_signup: item.created_at,
+          keywords: new Set()
+        };
+      }
+      acc[key].count++;
+      if (item.google_keyword) {
+        acc[key].keywords.add(item.google_keyword);
+      }
+      if (new Date(item.created_at) > new Date(acc[key].latest_signup)) {
+        acc[key].latest_signup = item.created_at;
+      }
+      return acc;
+    }, {});
+
+    // Convert Set to Array for keywords
+    Object.values(googleSummary || {}).forEach((campaign: any) => {
+      campaign.keywords = Array.from(campaign.keywords);
+    });
+
+    return { 
+      success: true, 
+      data: Object.values(googleSummary || {}), 
+      message: 'Successfully retrieved Google Ads performance' 
+    }
+  } catch (error) {
+    console.error('Error getting Google Ads performance:', error)
+    return { success: false, data: null, message: 'Failed to retrieve Google Ads performance' }
+  }
+}
+
+// Get Google Click ID (gclid) attribution data
+export async function getGoogleClickAttribution() {
+  if (!supabase) {
+    return { success: false, data: null, message: 'Supabase not configured' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('waitlist_emails')
+      .select('gclid, utm_source, utm_campaign, utm_medium, created_at')
+      .not('gclid', 'is', null)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, data, message: 'Successfully retrieved Google Click ID attribution data' }
+  } catch (error) {
+    console.error('Error getting Google Click ID attribution:', error)
+    return { success: false, data: null, message: 'Failed to retrieve Google Click ID attribution' }
   }
 }
