@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { addToWaitlist, getCurrentUser, signOut } from './lib/supabase';
-import { Mail, Umbrella, ArrowRight, CheckCircle } from 'lucide-react';
+import { initializeUTMTracking, getUTMForSubmission } from './lib/utm-tracking';
+import { Mail, Umbrella, ArrowRight, CheckCircle, BarChart3 } from 'lucide-react';
 import AuthModal from './components/AuthModal';
+import UTMAnalytics from './components/UTMAnalytics';
 
 function App() {
   const [email, setEmail] = useState('');
@@ -9,11 +11,13 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const [user, setUser] = useState<any>(null);
 
-  // Check for authenticated user on component mount
+  // Check for authenticated user on component mount and initialize UTM tracking
   React.useEffect(() => {
     checkUser();
+    initializeUTMTracking();
   }, []);
 
   const checkUser = async () => {
@@ -34,7 +38,10 @@ function App() {
       setIsLoading(true);
       setMessage('');
       
-      const result = await addToWaitlist(email, 'landing_page', 'A');
+      // Get UTM parameters for tracking
+      const utmParams = getUTMForSubmission();
+      
+      const result = await addToWaitlist(email, 'landing_page', 'A', utmParams);
       
       if (result.success) {
         setIsSubmitted(true);
@@ -73,6 +80,13 @@ function App() {
         {user && (
           <div className="fixed top-4 right-4 flex items-center gap-4 bg-white rounded-full px-4 py-2 shadow-lg">
             <span className="text-sm text-blue-700">Welcome, {user.email}</span>
+            <button
+              onClick={() => setShowAnalytics(true)}
+              className="text-sm text-blue-500 hover:text-blue-600 font-medium transition-colors flex items-center gap-1"
+            >
+              <BarChart3 className="w-4 h-4" />
+              Analytics
+            </button>
             <button
               onClick={handleSignOut}
               className="text-sm text-pink-500 hover:text-pink-600 font-medium transition-colors"
@@ -162,6 +176,12 @@ function App() {
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
+      />
+
+      {/* UTM Analytics Modal */}
+      <UTMAnalytics
+        isOpen={showAnalytics}
+        onClose={() => setShowAnalytics(false)}
       />
     </div>
   );

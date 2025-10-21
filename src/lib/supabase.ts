@@ -14,11 +14,31 @@ export interface WaitlistEmail {
   email: string
   source: string
   tracking_id: string
+  utm_source?: string
+  utm_medium?: string
+  utm_campaign?: string
+  utm_term?: string
+  utm_content?: string
+  referrer?: string
+  landing_page?: string
   created_at: string
 }
 
 // Function to add email to waitlist
-export async function addToWaitlist(email: string, source: string = 'landing_page', trackingId: string = 'A') {
+export async function addToWaitlist(
+  email: string, 
+  source: string = 'landing_page', 
+  trackingId: string = 'A',
+  utmParams?: {
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_term?: string;
+    utm_content?: string;
+    referrer?: string;
+    landing_page?: string;
+  }
+) {
   // Return mock response if Supabase is not configured
   if (!supabase) {
     console.warn('Supabase not configured. Email would be:', email)
@@ -40,13 +60,20 @@ export async function addToWaitlist(email: string, source: string = 'landing_pag
   }
 
   try {
+    const insertData: any = { 
+      email, 
+      source, 
+      tracking_id: trackingId 
+    };
+
+    // Add UTM parameters if provided
+    if (utmParams) {
+      Object.assign(insertData, utmParams);
+    }
+
     const { data, error } = await supabase
       .from('waitlist_emails')
-      .insert([{ 
-        email, 
-        source, 
-        tracking_id: trackingId 
-      }])
+      .insert([insertData])
       .select()
       .single()
 
@@ -59,7 +86,12 @@ export async function addToWaitlist(email: string, source: string = 'landing_pag
     }
 
     // Log tracking information
-    console.log(`Waitlist signup tracked with ID: ${trackingId}`, { email, source, tracking_id: trackingId })
+    console.log(`Waitlist signup tracked with ID: ${trackingId}`, { 
+      email, 
+      source, 
+      tracking_id: trackingId,
+      utm_params: utmParams 
+    })
 
     return { success: true, message: 'Successfully joined waitlist!', data }
   } catch (error) {
@@ -218,5 +250,118 @@ export async function getWaitlistByTracking(trackingId: string) {
   } catch (error) {
     console.error('Error getting waitlist by tracking:', error)
     return { success: false, data: null, message: 'Failed to retrieve waitlist data' }
+  }
+}
+
+// UTM Analytics Functions
+
+// Get signups by UTM source
+export async function getSignupsByUTMSource(utmSource: string) {
+  if (!supabase) {
+    return { success: false, data: null, message: 'Supabase not configured' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('waitlist_emails')
+      .select('*')
+      .eq('utm_source', utmSource)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, data, message: `Successfully retrieved signups for UTM source: ${utmSource}` }
+  } catch (error) {
+    console.error('Error getting signups by UTM source:', error)
+    return { success: false, data: null, message: 'Failed to retrieve UTM source data' }
+  }
+}
+
+// Get signups by UTM campaign
+export async function getSignupsByUTMCampaign(utmCampaign: string) {
+  if (!supabase) {
+    return { success: false, data: null, message: 'Supabase not configured' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('waitlist_emails')
+      .select('*')
+      .eq('utm_campaign', utmCampaign)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, data, message: `Successfully retrieved signups for UTM campaign: ${utmCampaign}` }
+  } catch (error) {
+    console.error('Error getting signups by UTM campaign:', error)
+    return { success: false, data: null, message: 'Failed to retrieve UTM campaign data' }
+  }
+}
+
+// Get UTM analytics summary
+export async function getUTMAnalytics() {
+  if (!supabase) {
+    return { success: false, data: null, message: 'Supabase not configured' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('waitlist_emails')
+      .select('utm_source, utm_medium, utm_campaign, utm_term, utm_content, referrer, landing_page, created_at')
+      .not('utm_source', 'is', null)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, data, message: 'Successfully retrieved UTM analytics' }
+  } catch (error) {
+    console.error('Error getting UTM analytics:', error)
+    return { success: false, data: null, message: 'Failed to retrieve UTM analytics' }
+  }
+}
+
+// Get campaign performance summary
+export async function getCampaignPerformance() {
+  if (!supabase) {
+    return { success: false, data: null, message: 'Supabase not configured' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('waitlist_emails')
+      .select('utm_source, utm_medium, utm_campaign, created_at')
+      .not('utm_source', 'is', null)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    // Group by campaign for summary
+    const campaignSummary = data?.reduce((acc: any, item: any) => {
+      const key = `${item.utm_source}_${item.utm_medium}_${item.utm_campaign}`;
+      if (!acc[key]) {
+        acc[key] = {
+          utm_source: item.utm_source,
+          utm_medium: item.utm_medium,
+          utm_campaign: item.utm_campaign,
+          count: 0,
+          latest_signup: item.created_at
+        };
+      }
+      acc[key].count++;
+      if (new Date(item.created_at) > new Date(acc[key].latest_signup)) {
+        acc[key].latest_signup = item.created_at;
+      }
+      return acc;
+    }, {});
+
+    return { 
+      success: true, 
+      data: Object.values(campaignSummary || {}), 
+      message: 'Successfully retrieved campaign performance' 
+    }
+  } catch (error) {
+    console.error('Error getting campaign performance:', error)
+    return { success: false, data: null, message: 'Failed to retrieve campaign performance' }
   }
 }
