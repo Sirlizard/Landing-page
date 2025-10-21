@@ -18,12 +18,12 @@ export interface GoogleUTMParameters {
 
 // Google-specific UTM source values
 export const GOOGLE_UTM_SOURCES = {
-  GOOGLE_ADS: 'google_ads',
-  GOOGLE_SEARCH: 'google_search', 
-  GOOGLE_DISPLAY: 'google_display',
-  GOOGLE_VIDEO: 'google_video',
-  GOOGLE_SHOPPING: 'google_shopping',
-  GOOGLE_ANALYTICS: 'google_analytics'
+  GOOGLE_ADS: 'site A',
+  GOOGLE_SEARCH: 'site A', 
+  GOOGLE_DISPLAY: 'site A',
+  GOOGLE_VIDEO: 'site A',
+  GOOGLE_SHOPPING: 'site A',
+  GOOGLE_ANALYTICS: 'site A'
 } as const;
 
 // Google-specific UTM medium values
@@ -60,7 +60,7 @@ export function extractGoogleUTMParameters(url?: string): GoogleUTMParameters | 
   if (!isGoogleTraffic) return null;
 
   const googleUTM: GoogleUTMParameters = {
-    utm_source: utmSource || 'google_ads',
+    utm_source: utmSource || 'site A',
     utm_medium: params.get('utm_medium') || 'cpc',
     utm_campaign: params.get('utm_campaign') || 'unknown_campaign',
     utm_term: params.get('utm_term'),
@@ -102,7 +102,7 @@ export function createGoogleAdsUTMUrl(
 ): string {
   const url = new URL(baseUrl);
   
-  url.searchParams.set('utm_source', 'google_ads');
+  url.searchParams.set('utm_source', 'site A');
   url.searchParams.set('utm_medium', 'cpc');
   url.searchParams.set('utm_campaign', campaign);
   
@@ -124,7 +124,7 @@ export function createGoogleDisplayUTMUrl(
 ): string {
   const url = new URL(baseUrl);
   
-  url.searchParams.set('utm_source', 'google_display');
+  url.searchParams.set('utm_source', 'site A');
   url.searchParams.set('utm_medium', 'display');
   url.searchParams.set('utm_campaign', campaign);
   
@@ -145,7 +145,7 @@ export function createGoogleVideoUTMUrl(
 ): string {
   const url = new URL(baseUrl);
   
-  url.searchParams.set('utm_source', 'google_video');
+  url.searchParams.set('utm_source', 'site A');
   url.searchParams.set('utm_medium', 'video');
   url.searchParams.set('utm_campaign', campaign);
   
@@ -166,7 +166,7 @@ export function createGoogleShoppingUTMUrl(
 ): string {
   const url = new URL(baseUrl);
   
-  url.searchParams.set('utm_source', 'google_shopping');
+  url.searchParams.set('utm_source', 'site A');
   url.searchParams.set('utm_medium', 'shopping');
   url.searchParams.set('utm_campaign', campaign);
   
@@ -245,14 +245,14 @@ export function getGoogleUTMForSubmission(): GoogleUTMParameters | null {
  * Example Google UTM URLs for different campaign types:
  * 
  * Google Ads Search:
- * https://yoursite.com?utm_source=google_ads&utm_medium=cpc&utm_campaign=relationship_tools&utm_term=friend_reminder&utm_content=ad_group_1
+ * https://yoursite.com?utm_source=site A&utm_medium=cpc&utm_campaign=relationship_tools&utm_term=friend_reminder&utm_content=ad_group_1
  * 
  * Google Display:
- * https://yoursite.com?utm_source=google_display&utm_medium=display&utm_campaign=brand_awareness&utm_content=news_site_placement
+ * https://yoursite.com?utm_source=site A&utm_medium=display&utm_campaign=brand_awareness&utm_content=news_site_placement
  * 
  * YouTube Video:
- * https://yoursite.com?utm_source=google_video&utm_medium=video&utm_campaign=product_demo&utm_content=demo_video_1
+ * https://yoursite.com?utm_source=site A&utm_medium=video&utm_campaign=product_demo&utm_content=demo_video_1
  * 
  * Google Shopping:
- * https://yoursite.com?utm_source=google_shopping&utm_medium=shopping&utm_campaign=product_launch&utm_term=relationship_app
+ * https://yoursite.com?utm_source=site A&utm_medium=shopping&utm_campaign=product_launch&utm_term=relationship_app
  */

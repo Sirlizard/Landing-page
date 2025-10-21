@@ -34,7 +34,7 @@ export interface WaitlistEmail {
 // Function to add email to waitlist
 export async function addToWaitlist(
   email: string, 
-  source: string = 'landing_page', 
+  source: string = 'site A', 
   trackingId: string = 'A',
   utmParams?: {
     utm_source?: string;

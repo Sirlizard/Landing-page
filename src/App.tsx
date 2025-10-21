@@ -60,7 +60,7 @@ function App() {
         google_placement: googleUTM.google_placement
       } : regularUTM;
       
-      const result = await addToWaitlist(email, 'landing_page', 'A', utmParams);
+      const result = await addToWaitlist(email, 'site A', 'A', utmParams);
       
       if (result.success) {
         setIsSubmitted(true);

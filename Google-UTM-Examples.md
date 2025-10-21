@@ -9,7 +9,7 @@ Ad Group: "Friend Reminder Tools"
 Keyword: "friend reminder app"
 
 UTM URL:
-https://yoursite.com?utm_source=google_ads&utm_medium=cpc&utm_campaign=relationship_tools_launch&utm_term=friend_reminder_app&utm_content=ad_group_friend_reminders
+https://yoursite.com?utm_source=site A&utm_medium=cpc&utm_campaign=relationship_tools_launch&utm_term=friend_reminder_app&utm_content=ad_group_friend_reminders
 ```
 
 ### **Google Display Ads**
@@ -19,7 +19,7 @@ Placement: "News Website"
 Creative: "Banner Ad 1"
 
 UTM URL:
-https://yoursite.com?utm_source=google_display&utm_medium=display&utm_campaign=brand_awareness&utm_content=news_website_banner_1
+https://yoursite.com?utm_source=site A&utm_medium=display&utm_campaign=brand_awareness&utm_content=news_website_banner_1
 ```
 
 ### **YouTube Video Ads**
@@ -29,7 +29,7 @@ Video: "Demo Video 1"
 Content: "Video Description Link"
 
 UTM URL:
-https://yoursite.com?utm_source=google_video&utm_medium=video&utm_campaign=product_demo&utm_content=demo_video_1
+https://yoursite.com?utm_source=site A&utm_medium=video&utm_campaign=product_demo&utm_content=demo_video_1
 ```
 
 ### **Google Shopping Ads**
@@ -39,7 +39,7 @@ Product: "Relationship Manager App"
 Content: "Shopping Ad 1"
 
 UTM URL:
-https://yoursite.com?utm_source=google_shopping&utm_medium=shopping&utm_campaign=product_launch&utm_term=relationship_manager_app&utm_content=shopping_ad_1
+https://yoursite.com?utm_source=site A&utm_medium=shopping&utm_campaign=product_launch&utm_term=relationship_manager_app&utm_content=shopping_ad_1
 ```
 
 ## 📊 **Google Campaign Types & Tracking**
@@ -48,7 +48,7 @@ https://yoursite.com?utm_source=google_shopping&utm_medium=shopping&utm_campaign
 - **Purpose**: Target users searching for relationship management
 - **Keywords**: "friend reminder", "relationship manager", "stay in touch"
 - **UTM Medium**: `cpc`
-- **UTM Source**: `google_ads`
+- **UTM Source**: `site A`
 
 **Example Campaign Structure:**
 ```
@@ -67,7 +67,7 @@ Campaign: "Relationship Management Tools"
 - **Purpose**: Build brand awareness on websites
 - **Targeting**: Interest-based, demographic, or placement targeting
 - **UTM Medium**: `display`
-- **UTM Source**: `google_display`
+- **UTM Source**: `site A`
 
 **Example Placements:**
 - News websites
@@ -79,7 +79,7 @@ Campaign: "Relationship Management Tools"
 - **Purpose**: Show product demos and testimonials
 - **Content**: Product videos, tutorials, testimonials
 - **UTM Medium**: `video`
-- **UTM Source**: `google_video`
+- **UTM Source**: `site A`
 
 **Example Video Types:**
 - Product demonstration videos
@@ -91,7 +91,7 @@ Campaign: "Relationship Management Tools"
 - **Purpose**: Showcase your app in Google Shopping
 - **Products**: Your relationship management app
 - **UTM Medium**: `shopping`
-- **UTM Source**: `google_shopping`
+- **UTM Source**: `site A`
 
 ## 🔧 **Google UTM URL Builder Functions**
 
